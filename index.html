@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teka Teki Silang</title>
+    <h1>Teka Teki Silang Anime & Waifu</h1>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+            background-color: skyblue;
+
+            
+        }
+        #crossword {
+            display: grid;
+            grid-template-columns: repeat(10, 40px);
+            gap: 2px;
+            margin-bottom: 20px;
+        }
+        .cell {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            border: 1px solid #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            background-color: white;
+        }
+        .question-number {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            font-size: 12px;
+            color: #555;
+        }
+        input {
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            border: none;
+            outline: none;
+            font-size: 24px;
+            background: transparent;
+        }
+        .empty {
+            background-color: skyblue;
+            border: 1px solid transparent;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="score">Skor: <span id="score-value">0</span></div>
+
+    <div id="crossword"></div>
+
+    <div id="questions-container">
+        <div>
+            <h3>Pertanyaan mendatar</h3>
+            <ul id="horizontal-questions"></ul>
+        </div>
+
+        <div>
+            <h3>Pertanyaan menurun</h3>
+            <ul id="vertical-questions"></ul>
+        </div>
+    </div>
+
+    <script>
+        const gridData = [
+            [null, { answer: 'T', num: 6 }, null, { answer: 'M',num: 9 }, null, null, null, null, null, null],
+            [null, { answer: 'S',num: 1 }, { answer: 'A' }, { answer: 'I' }, { answer: 'L' }, { answer: 'O' }, { answer: 'R'},null, null, null],
+            [null, { answer: 'U' }, null, { answer: 'U' }, null, null, null, null, null, null],
+            [null, { answer: 'N' },null, null, { answer: 'H', num: 7 }, null, { answer: 'K',num: 8 }, null, { answer: 'L',num: 10 }, null],
+            [{ answer: 'R', num: 2 }, { answer: 'A' }, { answer: 'N' }, { answer: 'G' }, { answer: 'I' }, { answer: 'K' }, { answer: 'U' }, null,{ answer: 'E' }, null],
+            [null, { answer: 'D' },null, null, { answer: 'N'}, null, { answer: 'R' }, null, { answer: 'N' }, null],
+            [{ answer: 'R',num: 3 }, { answer: 'E' },  { answer: 'M' },  null, { answer: 'A',num: 4}, { answer: 'S' }, { answer: 'U' }, { answer: 'K' }, { answer: 'A' },null],
+            [null, null, null, null, { answer: 'T'}, null, { answer: 'M' }, null, null, null],
+            [null,null, ,null, { answer: 'N',num: 5}, { answer: 'A'}, { answer: 'M'}, { answer: 'I' }, null, null, null, null, null, null],
+
+
+        ];
+
+        const questions = {
+            horizontal: [
+                { num: 1, question: "Gadis yang berubah dengan kekuatan bulan ,anime di spacetoon ", answer: "sailor" },
+                { num: 2, question: "nama depan Matsumoto Letnan ceria di Bleach", answer: "rangiku" },
+                { num: 3, question: "Pelayan setia dengan hati yang lembut", answer: "rem" },
+                { num: 4, question: "nama depan Langley evangelion", answer: "asuka" },
+                { num: 5, question: "cwe temennya luffy nakama", answer: "nami" }
+            ],
+            vertical: [
+                { num: 6, question: "Hokage yang kuat dan terampil dengan sisi penyayang", answer: "tsunade" },
+                { num: 7, question: "istri naruto", answer: "hinata" },
+                { num: 8, question: "Heroine Death Alive kekuatan manipulasi waktu", answer: "kurumi" },
+                { num: 9, question: "Nama depan Amano dari anime blend S", answer: "miu" },
+                { num: 10, question: "Heroine anime Eighty Six", answer: "lena" }
+            ]
+};
+
+
+        let score = 0;
+
+        function createGrid() {
+            const crossword = document.getElementById('crossword');
+            crossword.innerHTML = '';
+
+            gridData.forEach((row, rowIndex) => {
+                row.forEach((cell, colIndex) => {
+                    const cellDiv = document.createElement('div');
+                    cellDiv.classList.add('cell');
+
+                    if (cell !== null && cell.answer) {
+                        const input = document.createElement('input');
+                        input.setAttribute('maxlength', '1');
+                        input.dataset.row = rowIndex;
+                        input.dataset.col = colIndex;
+                        input.dataset.answer = cell.answer.toLowerCase();
+                        input.oninput = () => validateCell(input);
+
+                        if (cell.num) {
+                            const questionNumber = document.createElement('div');
+                            questionNumber.classList.add('question-number');
+                            questionNumber.textContent = cell.num;
+                            cellDiv.appendChild(questionNumber);
+                        }
+
+                        cellDiv.appendChild(input);
+                    } else {
+                        cellDiv.classList.add('empty');
+                    }
+
+                    crossword.appendChild(cellDiv);
+                });
+            });
+        }
+
+        function displayQuestions() {
+            const horizontalQuestions = document.getElementById("horizontal-questions");
+            const verticalQuestions = document.getElementById("vertical-questions");
+
+            questions.horizontal.forEach(q => {
+                const li = document.createElement("li");
+                li.innerText = `${q.num}. ${q.question}`;
+                horizontalQuestions.appendChild(li);
+            });
+
+            questions.vertical.forEach(q => {
+                const li = document.createElement("li");
+                li.innerText = `${q.num}. ${q.question}`;
+                verticalQuestions.appendChild(li);
+            });
+        }
+
+        function validateCell(input) {
+            const correctAnswer = input.dataset.answer;
+            if (input.value.toLowerCase() === correctAnswer) {
+                input.style.backgroundColor = "#8BC34A";
+                updateScore(10);
+                input.disabled = true;
+            } else {
+                input.style.backgroundColor = "#FF7043";
+                updateScore(-5);
+            }
+        }
+
+        function updateScore(points) {
+            score += points;
+            if (score < 0) score = 0;
+            document.getElementById("score-value").textContent = score;
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            createGrid();
+            displayQuestions();
+        });
+    </script>
+
+</body>
+</html>
